@@ -8,7 +8,7 @@ import re
 # from fpdf import FPDF
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
-
+import textwrap
 from io import BytesIO
 import matplotlib.pyplot as plt
 
@@ -20,13 +20,9 @@ load_dotenv()
 
 # --- Configure Gemini ---
 # genai.configure(api_key="AIzaSyD_MzbcVf7HlCHzJRQJoByKAgf9w9x-HBo")
-genai.configure(api_key=os.getenv("GEMINI-KEY"))  #HCP
-model = genai.GenerativeModel("gemini-2.0-flash",
-    system_instruction="""
-    You are an AI assistant helping with business data analysis.
-    Avoid unnecessary data description. Always give numeric insights,
-    prioritize visual understanding, and provide top/bottom performer tables and strategic recommendations.
-    """)
+genai.configure(api_key="AIzaSyCBjUZDQvG6uezrZ9sk0cnYKL68o-1KqQY") #HCP
+
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # --- Streamlit UI ---
 st.title("📊 Multi-Agent Excel AI Insights Dashboard")
@@ -136,6 +132,10 @@ Dataset (first 20 rows):
     return model.generate_content(prompt).text
 
 
+def wrap_long_words(text, width=100):
+    words = text.split()
+    return '\n'.join([textwrap.fill(word, width=width) if len(word) > width else word for word in words])
+
 
 def render_chart_from_task(task_text, df):
     task_text = task_text.lower()
@@ -211,24 +211,14 @@ def download_agent_pdf(user_prompt, plan_text, insights, chart_response, report)
     pdf.add_page()
 
     def write_section(title, content):
-        pdf.set_font("Arial", style="B", size=14)
-        pdf.cell(200, 10, txt=title, ln=True)
+        pdf.set_font("Arial", "B", 16)
+        pdf.cell(0, 10, title, ln=True)
+        pdf.set_font("Arial", "", 12)
     
-        pdf.set_font("Arial", size=12)
-        cleaned_content = clean_text(content)
-    
-        # Split into manageable chunks
-        lines = cleaned_content.split("\n")
-        for line in lines:
-            # Manually wrap long lines (max length 150 characters)
-            if len(line) > 150:
-                wrapped = re.findall('.{1,150}', line)  # Split line every 150 characters
-                for chunk in wrapped:
-                    pdf.multi_cell(0, 10, chunk)
-            else:
-                pdf.multi_cell(0, 10, line)
-    
-        pdf.ln(5)
+        for line in content.split("\n"):
+            safe_line = wrap_long_words(line, width=80)
+            pdf.multi_cell(0, 10, safe_line)
+
     
 
 
