@@ -12,9 +12,15 @@ from fpdf.enums import XPos, YPos
 from io import BytesIO
 import matplotlib.pyplot as plt
 
+# env
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # --- Configure Gemini ---
 # genai.configure(api_key="AIzaSyD_MzbcVf7HlCHzJRQJoByKAgf9w9x-HBo")
-genai.configure(api_key="AIzaSyCBjUZDQvG6uezrZ9sk0cnYKL68o-1KqQY")  #HCP
+genai.configure(api_key=os.getenv("GEMINI-KEY"))  #HCP
 model = genai.GenerativeModel("gemini-2.0-flash",
     system_instruction="""
     You are an AI assistant helping with business data analysis.
