@@ -17,7 +17,7 @@ import textwrap
 load_dotenv()
 
 # --- Configure Gemini ---
-genai.configure(api_key=os.getenv("GEMINI-KEY"))  #HCP
+genai.configure(api_key="AIzaSyCBjUZDQvG6uezrZ9sk0cnYKL68o-1KqQY")  #HCP
 model = genai.GenerativeModel("gemini-2.0-flash",
     system_instruction="""
     You are an AI assistant helping with business data analysis.
